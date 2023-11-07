@@ -7,14 +7,8 @@
 
 import React from 'react';
 import Home from './src/pages/home';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import Toast from 'react-native-toast-message';
+import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
@@ -29,6 +23,7 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaView style={{flex: 1}}>
+      <Toast />
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
