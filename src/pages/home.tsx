@@ -2,8 +2,10 @@ import React, {useState, useEffect, useRef} from 'react';
 import {USERNAME, PASSWORD, CLIENTID, TOPIC_ID} from '@env';
 
 import Toast from 'react-native-toast-message';
-import {StyleSheet, Text, View} from 'react-native';
+import {Dimensions, StyleSheet, Text, View} from 'react-native';
 import mqtt, {IMqttClient} from 'sp-react-native-mqtt';
+import {LineChart} from 'react-native-chart-kit';
+import {getDateFromIsoFormat} from '../utils/datetime';
 
 const MQTT_TOPIC = `channels/${TOPIC_ID}/subscribe`;
 const MQTT_HOST = 'mqtt://mqtt3.thingspeak.com:1883';
@@ -19,14 +21,26 @@ const MQTT_CREDENTIALS = {
 };
 
 type mqttData = {
-  value?: string;
-  createdAt?: string;
-  alarmStatus?: 'true' | 'false';
+  value: number;
+  createdAt: string;
+};
+
+type chartDataProp = {
+  labels: string[];
+  datasets: [
+    {
+      data: number[];
+    },
+  ];
 };
 
 const MQTTComponent = () => {
-  const [message, setMessage] = useState('');
-  const [dataArray, setDataArray] = useState<mqttData[]>([]);
+  const [alarmStatus, setAlarmStatus] = useState<'true' | 'false'>('false');
+  const [chartData, setChartData] = useState<chartDataProp>();
+  const [dataArray, setDataArray] = useState<mqttData[]>([
+    {value: 5679, createdAt: '2021-11-09T00:00:00Z'},
+    {value: 3394, createdAt: '2021-11-21T01:33:00Z'},
+  ]);
   const [loading, setLoading] = useState(true);
   const mqttClient = useRef<IMqttClient | null>(null);
 
@@ -53,12 +67,21 @@ const MQTTComponent = () => {
         setDataArray(oldState => [
           ...oldState,
           {
-            value: data.field1,
+            value: parseInt(data.field1),
             createdAt: data.created_at,
-            alarmStatus: data.field2,
           },
         ]);
-        setMessage(`Field1: ${data.field1}`);
+        const alarm: 'true' | 'false' = data.field2;
+        if (alarm !== alarmStatus) {
+          setAlarmStatus(alarm);
+          Toast.show({
+            type: 'info',
+            text1: 'Alarm Status',
+            text2: alarm ? 'Alarme ligado' : 'Alarme desligado',
+            position: 'bottom',
+            visibilityTime: 5000,
+          });
+        }
       });
 
       client.on('error', err => {
@@ -103,6 +126,17 @@ const MQTTComponent = () => {
     }
   }
 
+  useEffect(() => {
+    setChartData({
+      labels: dataArray.map(item => getDateFromIsoFormat(item.createdAt)),
+      datasets: [
+        {
+          data: dataArray.map(item => item.value),
+        },
+      ],
+    });
+  }, [dataArray]);
+
   return (
     <View>
       <View style={style.statusBar}>
@@ -115,10 +149,33 @@ const MQTTComponent = () => {
           </Text>
         </View>
       </View>
-      {loading ? (
-        <Text>loading...</Text>
-      ) : (
-        <Text>{`${JSON.stringify(dataArray[0])}`}</Text>
+      {Boolean(chartData) && (
+        <View style={{padding: 4}}>
+          <LineChart
+            data={chartData}
+            width={Dimensions.get('window').width - 8}
+            height={250}
+            formatYLabel={value => `${value.slice(0, -3)}`}
+            chartConfig={{
+              backgroundColor: '#552586',
+              backgroundGradientFrom: '#6A369C',
+              backgroundGradientTo: '#B589D6',
+              decimalPlaces: 2,
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 8,
+              },
+              propsForDots: {
+                r: '3',
+                strokeWidth: '2',
+                stroke: '#c3ff00',
+              },
+            }}
+            bezier
+            style={style.chart}
+          />
+        </View>
       )}
     </View>
   );
@@ -149,6 +206,7 @@ const style = StyleSheet.create({
     marginHorizontal: 4,
     borderRadius: 14,
   },
+  chart: {marginVertical: 8, borderRadius: 16},
 });
 
 export default MQTTComponent;
