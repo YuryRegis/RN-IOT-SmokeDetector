@@ -7,12 +7,13 @@
 
 import React from 'react';
 import Home from './src/pages/home';
-import Toast from 'react-native-toast-message';
+import {LogBox} from 'react-native';
 import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 function App(): JSX.Element {
+  LogBox.ignoreLogs(['new NativeEventEmitter']);
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -23,7 +24,6 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaView style={{flex: 1}}>
-      <Toast />
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
