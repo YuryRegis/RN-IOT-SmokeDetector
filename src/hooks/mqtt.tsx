@@ -1,79 +1,113 @@
 import React, {useEffect, useState} from 'react';
-import Mqtt from 'react-native-mqtt';
+import Toast from 'react-native-toast-message';
+import mqtt, {IMqttClient} from 'sp-react-native-mqtt';
+import {USERNAME, PASSWORD, CLIENTID, TOPIC_ID} from '@env';
 
-type mqttStatus = 'disconnected' | 'connecting' | 'connected';
-
-export const mqttStatusCode = {
-  disconnected: 'disconnected' as mqttStatus,
-  connecting: 'connecting' as mqttStatus,
-  connected: 'connected' as mqttStatus,
+export const MQTT_TOPIC = `channels/${TOPIC_ID}/subscribe`;
+export const MQTT_HOST = 'mqtt://mqtt3.thingspeak.com:1883';
+export const MQTT_CREDENTIALS = {
+  auth: true,
+  port: 1883,
+  clean: true,
+  uri: MQTT_HOST,
+  automaticReconnect: true,
+  user: USERNAME,
+  pass: PASSWORD,
+  clientId: CLIENTID,
 };
 
-interface MqttState {
-  status: mqttStatus;
-  loading: boolean;
-  data: string | null;
-}
+type mqttDataResponse = {
+  value: number;
+  createdAt: string;
+};
 
-function useMqtt(
-  host: string,
-  port: number,
-  topic?: string,
-  username?: string,
-  password?: string,
-  clientId?: string,
-): [
-  MqttState,
-  (topic: string, message: string) => void,
-  (topic: string) => void,
-] {
-  const [state, setState] = useState<MqttState>({
-    status: mqttStatusCode.disconnected,
-    loading: false,
-    data: null,
-  });
+export function useMqtt() {
+  const [loading, setLoading] = useState(true);
+  const [isAlarmOn, setIsAlarmOn] = useState(false);
+  const [data, setData] = useState<mqttDataResponse[]>([]);
 
-  const connect = () => {
-    setState({...state, status: mqttStatusCode.connecting, loading: true});
+  const mqttClientRef = React.useRef<IMqttClient | null>(null);
 
-    const client = Mqtt.connect(host, {
-      port,
-      username,
-      password,
-      clientId,
-    });
+  useEffect(() => {
+    async function connect() {
+      const mqttClient = await mqtt.createClient(MQTT_CREDENTIALS);
 
-    client.on('connect', () => {
-      setState({...state, status: mqttStatusCode.connected, loading: false});
-    });
-
-    client.on('error', (error: {message: string}) => {
-      setState({
-        ...state,
-        status: mqttStatusCode.disconnected,
-        loading: false,
-        data: error.message,
+      mqttClient.on('connect', () => {
+        console.log('MQTT client connected');
+        mqttClient.subscribe(MQTT_TOPIC, 0);
+        Toast.show({
+          type: 'success',
+          text1: 'MQTT Connected',
+          text2: MQTT_TOPIC,
+          position: 'bottom',
+          visibilityTime: 5000,
+        });
+        setLoading(false);
       });
-    });
 
-    client.on('message', (topic, message) => {
-      setState({...state, data: message.toString()});
-    });
-  };
+      mqttClient.on('message', payload => {
+        setLoading(true);
+        console.log(`Received message: ${payload.data}`);
+        const response = JSON.parse(payload.data);
 
-  const post = (topic: string, message: string) => {
-    if (state.status === mqttStatusCode.connected) {
-      Mqtt.publish(topic, message, 0, false);
+        if (response.field1 !== null) {
+          setData(oldState => [
+            ...oldState,
+            {
+              value: parseInt(response.field1, 10),
+              createdAt: response.created_at,
+            },
+          ]);
+        }
+        if (response.field2 !== null) {
+          const alarmStatusOn = response.field2 === 'true';
+          setIsAlarmOn(alarmStatusOn);
+          Toast.show({
+            type: 'info',
+            text1: 'Alarm Status',
+            text2: alarmStatusOn ? 'Alarme ligado' : 'Alarme desligado',
+            position: 'bottom',
+            visibilityTime: 5000,
+          });
+        }
+        setLoading(false);
+      });
+
+      mqttClient.on('closed', () => {
+        Toast.show({
+          type: 'error',
+          text1: 'MQTT Disconnected',
+          text2: MQTT_TOPIC,
+          position: 'bottom',
+          visibilityTime: 5000,
+        });
+        setLoading(true);
+      });
+
+      mqttClient.on('error', err => {
+        console.log(err);
+      });
+
+      mqttClient.connect();
+      mqttClientRef.current = mqttClient;
     }
-  };
+    connect();
+    const mqttRef = mqttClientRef.current;
+    return () => {
+      mqttRef?.disconnect();
+    };
+  }, []);
 
-  const subscribe = (topic: string) => {
-    if (state.status === mqttStatusCode.connected) {
-      Mqtt.subscribe(topic, 0);
-    }
+  function publishAlarmStatus(status: boolean) {
+    const publishTopic = `channels/${TOPIC_ID}/publish/fields/field2`;
+    mqttClientRef.current?.publish(publishTopic, status.toString(), 0, false);
+  }
+
+  return {
+    data,
+    loading,
+    isAlarmOn,
+    publishAlarmStatus,
+    mqttClient: mqttClientRef.current,
   };
-  connect();
-  return [state, post, subscribe];
 }
-
-export default useMqtt;

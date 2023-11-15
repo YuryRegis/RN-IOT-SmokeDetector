@@ -1,119 +1,29 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {USERNAME, PASSWORD, CLIENTID, TOPIC_ID} from '@env';
+import React, {useState, useEffect} from 'react';
 
 import Toast from 'react-native-toast-message';
-import {LineChart} from 'react-native-chart-kit';
-import mqtt, {IMqttClient} from 'sp-react-native-mqtt';
+import {StyleSheet, Text, View} from 'react-native';
 import {getDateFromIsoFormat} from '../utils/datetime';
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
-import {Button} from '../components';
 
-const MQTT_TOPIC = `channels/${TOPIC_ID}/subscribe`;
-const MQTT_HOST = 'mqtt://mqtt3.thingspeak.com:1883';
-const MQTT_CREDENTIALS = {
-  auth: true,
-  port: 1883,
-  clean: true,
-  uri: MQTT_HOST,
-  automaticReconnect: true,
-  user: USERNAME,
-  pass: PASSWORD,
-  clientId: CLIENTID,
-};
+import {useMqtt} from '../hooks';
+import {Button, Chart} from '../components';
 
-type mqttData = {
-  value: number;
-  createdAt: string;
-};
-
-type chartDataProp = {
-  labels: string[];
+const initialChartData = {
+  labels: [''],
   datasets: [
     {
-      data: number[];
+      data: [0],
     },
-  ];
+  ],
 };
 
 const MQTTComponent = () => {
-  const [alarmStatus, setAlarmStatus] = useState<'true' | 'false'>('false');
-  const [chartData, setChartData] = useState<chartDataProp>();
-  const [loading, setLoading] = useState(true);
-  const [dataArray, setDataArray] = useState<mqttData[]>([
-    {value: 5679, createdAt: '2021-11-09T00:00:00Z'},
-    {value: 3394, createdAt: '2021-11-21T01:33:00Z'},
-  ]);
-  const mqttClient = useRef<IMqttClient | null>(null);
-
-  useEffect(() => {
-    async function connectMQTT() {
-      const client = await mqtt.createClient(MQTT_CREDENTIALS);
-
-      client.on('connect', () => {
-        console.log('MQTT client connected');
-        client.subscribe(MQTT_TOPIC, 0);
-        Toast.show({
-          type: 'success',
-          text1: 'MQTT Connected',
-          text2: MQTT_TOPIC,
-          position: 'bottom',
-          visibilityTime: 5000,
-        });
-        setLoading(false);
-      });
-
-      client.on('message', payload => {
-        console.log(`Received message: ${payload.data}`);
-        const data = JSON.parse(payload.data);
-        setLoading(false);
-
-        if (data.field1 !== null) {
-          setDataArray(oldState => [
-            ...oldState,
-            {
-              value: parseInt(data.field1, 10),
-              createdAt: data.created_at,
-            },
-          ]);
-        }
-        if (data.field2 !== null) {
-          const alarm = data.field2 as 'true' | 'false';
-          setAlarmStatus(alarm);
-          Toast.show({
-            type: 'info',
-            text1: 'Alarm Status',
-            text2: alarm === 'true' ? 'Alarme ligado' : 'Alarme desligado',
-            position: 'bottom',
-            visibilityTime: 5000,
-          });
-        }
-      });
-
-      client.on('error', err => {
-        console.log(err);
-      });
-
-      client.connect();
-      mqttClient.current = client;
-    }
-    connectMQTT();
-
-    return () => {
-      mqttClient.current?.disconnect();
-      Toast.show({
-        type: 'error',
-        text1: 'MQTT Disconnected',
-        text2: MQTT_TOPIC,
-        position: 'bottom',
-        visibilityTime: 5000,
-      });
-    };
-  }, []);
+  const [chartData, setChartData] = useState(initialChartData);
+  const {mqttClient, loading, data, isAlarmOn, publishAlarmStatus} = useMqtt();
 
   function getClientStatus() {
     const clientStatus = loading
       ? 'Conectando'
-      : mqttClient.current?.isConnected()
+      : mqttClient?.isConnected()
       ? 'Conectado'
       : 'Disconectado';
     return clientStatus;
@@ -132,21 +42,18 @@ const MQTTComponent = () => {
   }
 
   useEffect(() => {
+    if (data.length === 0) {
+      return;
+    }
     setChartData({
-      labels: dataArray.map(item => getDateFromIsoFormat(item.createdAt)),
+      labels: data.map(item => getDateFromIsoFormat(item.createdAt)),
       datasets: [
         {
-          data: dataArray.map(item => item.value),
+          data: data.map(item => item.value),
         },
       ],
     });
-  }, [dataArray]);
-
-  function handleAlarmButtom() {
-    const publishTopic = `channels/${TOPIC_ID}/publish/fields/field2`;
-    mqttClient.current?.publish(publishTopic, 'false', 0, false);
-    setLoading(true);
-  }
+  }, [data]);
 
   return (
     <View style={style.container}>
@@ -161,39 +68,14 @@ const MQTTComponent = () => {
           </Text>
         </View>
       </View>
-      {Boolean(chartData) && (
-        <View>
-          <LineChart
-            data={chartData}
-            width={Dimensions.get('window').width - 32}
-            height={250}
-            formatYLabel={value => `${value.slice(0, -3)}`}
-            chartConfig={{
-              backgroundColor: '#552586',
-              backgroundGradientFrom: '#6A369C',
-              backgroundGradientTo: '#B589D6',
-              decimalPlaces: 2,
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 8,
-              },
-              propsForDots: {
-                r: '3',
-                strokeWidth: '2',
-                stroke: '#c3ff00',
-              },
-            }}
-            bezier
-            style={style.chart}
-          />
-        </View>
-      )}
+
+      <Chart data={chartData} />
+
       <View style={style.bodyContent}>
         <Button
           title="Desligar alarme"
-          onPress={handleAlarmButtom}
-          disabled={alarmStatus === 'false' || loading}
+          onPress={() => publishAlarmStatus(false)}
+          disabled={!isAlarmOn || loading}
         />
       </View>
     </View>
@@ -229,7 +111,6 @@ const style = StyleSheet.create({
     marginHorizontal: 4,
     borderRadius: 14,
   },
-  chart: {marginVertical: 8, borderRadius: 16},
   bodyContent: {
     flex: 1,
     zIndex: -1,
