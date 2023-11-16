@@ -6,9 +6,8 @@
  */
 
 import React from 'react';
-import Home from './src/pages/home';
-import {LogBox} from 'react-native';
-import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
+import TabBar from './src/routes/tabbar';
+import {SafeAreaView, StatusBar, useColorScheme, LogBox} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
@@ -28,7 +27,7 @@ function App(): JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <Home />
+      <TabBar />
     </SafeAreaView>
   );
 }
