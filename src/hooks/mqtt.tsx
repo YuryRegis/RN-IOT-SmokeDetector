@@ -92,10 +92,6 @@ export function useMqtt() {
       mqttClientRef.current = mqttClient;
     }
     connect();
-    const mqttRef = mqttClientRef.current;
-    return () => {
-      mqttRef?.disconnect();
-    };
   }, []);
 
   function publishAlarmStatus(status: boolean) {

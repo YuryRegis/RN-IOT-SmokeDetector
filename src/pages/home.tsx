@@ -5,7 +5,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {getDateFromIsoFormat} from '../utils/datetime';
 
 import {useMqtt} from '../hooks';
-import {Button, Chart} from '../components';
+import {AnimatedAlert, Button, Chart} from '../components';
 
 const initialChartData = {
   labels: [''],
@@ -72,10 +72,13 @@ const MQTTComponent = () => {
       <Chart data={chartData} />
 
       <View style={style.bodyContent}>
+        <View style={[style.AnimatedBox, !isAlarmOn && style.WithOpacity]}>
+          <AnimatedAlert shouldStartAnimation={isAlarmOn} />
+        </View>
         <Button
           title="Desligar alarme"
-          onPress={() => publishAlarmStatus(false)}
           disabled={!isAlarmOn || loading}
+          onPress={() => publishAlarmStatus(false)}
         />
       </View>
     </View>
@@ -117,6 +120,21 @@ const style = StyleSheet.create({
     paddingBottom: 24,
     alignItems: 'center',
     justifyContent: 'flex-end',
+  },
+  AnimatedBox: {
+    flex: 1,
+    zIndex: -3,
+    position: 'absolute',
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    width: '100%',
+    height: '100%',
+    paddingBottom: 32,
+  },
+  WithOpacity: {
+    opacity: 0.3,
   },
 });
 
