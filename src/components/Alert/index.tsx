@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 
+import alarm from './sound';
 import {StyleSheet} from 'react-native';
 import LottieView from 'lottie-react-native';
 
@@ -13,8 +14,11 @@ function AnimatedAlert({shouldStartAnimation}: AnimatedAlertProps) {
   useEffect(() => {
     if (shouldStartAnimation) {
       animationRef.current?.play();
+      alarm.setVolume(1);
+      alarm.play().setNumberOfLoops(-1);
     } else {
       animationRef.current?.reset();
+      alarm.stop();
     }
   }, [shouldStartAnimation]);
 
