@@ -1,7 +1,7 @@
 import React from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 
-interface ButtonProps {
+export interface ButtonProps {
   disabled: boolean;
   onPress: () => void;
   title: string;
