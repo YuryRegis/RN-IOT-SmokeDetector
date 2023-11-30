@@ -2,7 +2,7 @@ import React from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 
 export interface ButtonProps {
-  disabled: boolean;
+  disabled: Boolean;
   onPress: () => void;
   title: string;
 }
@@ -29,6 +29,7 @@ const style = StyleSheet.create({
     backgroundColor: 'gray',
   },
   text: {
+    textAlign: 'center',
     fontSize: 16,
     color: 'white',
   },

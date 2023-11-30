@@ -40,6 +40,7 @@ function AboutUS() {
         <Text style={styles.Text}>Pedro Rodrigues Neto</Text>
         <Text style={styles.Text}>Tassiano dos Santos Cardoso</Text>
         <Text style={styles.Text}>Yury Regis Neiva Pereira</Text>
+        <View style={styles.Spacer} />
       </View>
     </ScrollView>
   );

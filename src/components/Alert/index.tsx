@@ -5,7 +5,7 @@ import {StyleSheet} from 'react-native';
 import LottieView from 'lottie-react-native';
 
 interface AnimatedAlertProps {
-  shouldStartAnimation: boolean;
+  shouldStartAnimation: Boolean;
 }
 
 function AnimatedAlert({shouldStartAnimation}: AnimatedAlertProps) {
@@ -24,11 +24,10 @@ function AnimatedAlert({shouldStartAnimation}: AnimatedAlertProps) {
 
   return (
     <LottieView
+      loop
       ref={animationRef}
       style={style.lottieView}
       source={require('../../assets/sirene.json')}
-      autoPlay={shouldStartAnimation}
-      loop
     />
   );
 }

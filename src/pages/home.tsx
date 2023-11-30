@@ -1,11 +1,16 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 
 import Toast from 'react-native-toast-message';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {getDateFromIsoFormat} from '../utils/datetime';
 
 import {useMqtt} from '../hooks';
+import {ConfigModal} from './modal';
+// import {useConfigMQTTStore} from '../context';
 import {AnimatedAlert, Button, Chart} from '../components';
+import {StatusInfo} from './components/StatusInfo';
+import {useGlobalState} from '../context';
 
 const initialChartData = {
   labels: [''],
@@ -17,28 +22,14 @@ const initialChartData = {
 };
 
 const MQTTComponent = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   const [chartData, setChartData] = useState(initialChartData);
-  const {mqttClient, loading, data, isAlarmOn, publishAlarmStatus} = useMqtt();
+  const {data, publishAlarmStatus} = useMqtt();
 
-  function getClientStatus() {
-    const clientStatus = loading
-      ? 'Conectando'
-      : mqttClient?.isConnected()
-      ? 'Conectado'
-      : 'Disconectado';
-    return clientStatus;
-  }
+  const {isLoading, isAlarmOn} = useGlobalState();
 
-  function getStatusColor() {
-    const clientStatus = getClientStatus();
-    switch (clientStatus) {
-      case 'Conectando':
-        return 'orange';
-      case 'Conectado':
-        return 'green';
-      case 'Disconectado':
-        return 'red';
-    }
+  function closeModal() {
+    setModalVisible(false);
   }
 
   useEffect(() => {
@@ -58,15 +49,15 @@ const MQTTComponent = () => {
   return (
     <View style={style.container}>
       <Toast />
+
+      <ConfigModal visible={modalVisible} callback={closeModal} />
+
       <View style={style.statusBar}>
-        <View style={style.statusBarContent}>
-          <View
-            style={[style.statusBarIcon, {backgroundColor: getStatusColor()}]}
-          />
-          <Text style={[style.statusBarText, {color: getStatusColor()}]}>
-            {getClientStatus()}
-          </Text>
-        </View>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Text style={{color: 'black'}}>Configurar MQTT</Text>
+        </TouchableOpacity>
+
+        <StatusInfo />
       </View>
 
       <Chart data={chartData} />
@@ -77,7 +68,7 @@ const MQTTComponent = () => {
         </View>
         <Button
           title="Desligar alarme"
-          disabled={!isAlarmOn || loading}
+          disabled={!isAlarmOn || isLoading}
           onPress={() => publishAlarmStatus(false)}
         />
       </View>
@@ -96,7 +87,7 @@ const style = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
   },
   statusBarContent: {
     flexDirection: 'row',
@@ -107,12 +98,6 @@ const style = StyleSheet.create({
     fontSize: 16,
     color: 'orange',
     fontWeight: 'bold',
-  },
-  statusBarIcon: {
-    height: 14,
-    width: 14,
-    marginHorizontal: 4,
-    borderRadius: 14,
   },
   bodyContent: {
     flex: 1,
