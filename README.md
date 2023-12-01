@@ -1,79 +1,132 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<div style="text-align: center;">
+  <img src="https://cdn3.vectorstock.com/i/1000x1000/71/77/no-smoking-sign-with-cigarette-vector-22767177.jpg" alt="Logo do Projeto" style="width: 200px; height: 200px; border-radius: 50px">
+</div>
 
-# Getting Started
+# Detector de Fumaça IoT
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+Este projeto foi desenvolvido por estudantes da Pontifícia Universidade Católica de Minas Gerais, unidade Poços de Caldas, com o objetivo de criar um protótipo de detector de fumaça de cigarros IoT. O dispositivo pode ser utilizado em residências, hotéis, empresas e outros ambientes para monitorar ambientes fechados que proibem fumar cigarros, charutos, cachimbos, narguilés e outros produtos derivados do tabaco em locais de uso coletivo, públicos ou privados (artigo 49 da Lei nº 12.546/2011). O protótipo foi desenvolvido utilizando a plataforma Arduino (ESP32), protocolo MQTT, e a linguagem de programação utilizada no dispositivo IoT foi C++.
 
-## Step 1: Start the Metro Server
+**Professor Responsável:**
+- Claudio Faria
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+**Alunos:**
+- Lucas Mascarenhas dos Santos
+- Pedro Rodrigues Neto
+- Tassiano dos Santos Cardoso
+- Yury Regis Neiva Pereira
 
-To start Metro, run the following command from the _root_ of your React Native project:
+# Download - Detector de Fumaça IoT
 
-```bash
-# using npm
-npm start
+- [Android](https://github.com/YuryRegis/RN-IOT-SmokeDetector/blob/master/android/app/release/app-release.apk)
+- iOS (ainda não disponível)
 
-# OR using Yarn
-yarn start
-```
+# Telas do Aplicativo
 
-## Step 2: Start your Application
+<table>
+  <tr>
+    <td><img src="link_da_imagem_configuracao" alt="Configuração" style="width: 200px; height: 400px;"></td>
+    <td><img src="link_da_imagem_monitoramento" alt="Monitoramento" style="width: 200px; height: 400px;"></td>
+    <td><img src="link_da_imagem_sobre" alt="Sobre Nós" style="width: 200px; height: 400px;"></td>
+  </tr>
+</table>
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+- **Configuração:** Esta tela é responsável por receber dados de conexão com um broker MQTT.
+- **Monitoramento:** Aqui são exibidos os dados do sensor de fumaça em tempo real.
+- **Sobre Nós:** Oferece informações sobre a equipe e o projeto.
 
-### For Android
+# Instruções para Configuração do Broker MQTT (ThingSpeak)
 
-```bash
-# using npm
-npm run android
+Este projeto utiliza o serviço de broker MQTT do ThingSpeak para a comunicação do detector de fumaça. Caso necessite configurar os dados de conexão, siga os passos abaixo:
 
-# OR using Yarn
-yarn android
-```
+1. **Crie uma Conta no ThingSpeak:**
+   - Acesse [este link](https://www.mathworks.com/mwaccount/register) para criar uma conta no ThingSpeak, caso ainda não tenha uma.
 
-### For iOS
+2. **Obtenha seus Dados de Configuração:**
+   - Após criar a conta, acesse a documentação oficial do ThingSpeak para mais detalhes sobre como configurar o broker MQTT e obter os dados necessários: [Documentação ThingSpeak](https://www.mathworks.com/help/thingspeak/).
+   
+3. **Dados para Conexão:**
+   - Para configurar o detector de fumaça, utilize os seguintes dados de conexão fornecidos pelo ThingSpeak:
+     - **ID de Cliente**
+     - **ID do Tópico** (`2334858`)
+     - **Usuário**
+     - **Senha**
+     - **Host** `mqtt://mqtt3.thingspeak.com:1883`
 
-```bash
-# using npm
-npm run ios
+4. **Configuração Padrão:**
+   - Por padrão, este projeto já carrega os dados de conexão pré-configurados para o broker MQTT do ThingSpeak. No entanto, caso necessite personalizar ou atualizar essas configurações, utilize as informações fornecidas acima.
+      
 
-# OR using Yarn
-yarn ios
-```
+Para mais detalhes e instruções específicas sobre a configuração do broker MQTT do ThingSpeak, consulte a [documentação oficial do ThingSpeak](https://www.mathworks.com/help/thingspeak/).
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+# Instruções para Configurar e Executar um Projeto React Native (CLI)
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+## Pré-requisitos:
 
-## Step 3: Modifying your App
+Antes de começar, certifique-se de ter o seguinte instalado em seu sistema:
 
-Now that you have successfully run the app, let's modify it.
+- Node.js: [Download e Instalação do Node.js](https://nodejs.org/)
+- React Native CLI: Instale globalmente via npm ou yarn:
+  ```bash
+  npm install -g react-native-cli
+   ```
+   ```bash
+   yarn global add react-native-cli
+   ```
+## Clone do repositório
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+   ```bash
+   git clone https://github.com/YuryRegis/RN-IOT-SmokeDetector.git
+   ```
+## Configuração do Projeto:
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+- Acesse o Diretório do Projeto:
 
-## Congratulations! :tada:
+    ```bash
+   cd RN-IOT-SmokeDetector
+    ```
+- Instale as Dependências (npm ou yarn):
+   ```bash
+   npm install
+   ```
+   ```bash
+   yarn install
+   ```
+- Preparando simulador (iOS)
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+## Executando o projeto
+- Inicializando projeto no emulador Android
+   ```bash
+   react-native run-android
+   ```
+- Inicializando projeto no simulador iOS
+   ```bash
+   react-native run-ios
+   ```
+# Contribuições Externas:
 
-You've successfully run and modified your React Native App. :partying_face:
+Este projeto está aberto para contribuições externas! Se você tem ideias para melhorias, correções ou novos recursos, ficaríamos muito felizes em receber sua contribuição através de Pull Requests (PRs). Suas sugestões são valiosas para o desenvolvimento contínuo deste projeto.
 
-### Now what?
+Fique à vontade para explorar o código, sugerir melhorias, reportar problemas ou implementar novos recursos. Estamos ansiosos para colaborar com a comunidade e tornar este projeto ainda melhor!
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+Para contribuir, siga estes passos simples:
+- Faça um fork deste repositório.
+- Faça as alterações desejadas em sua cópia do projeto.
+- Abra uma nova Pull Request com uma descrição detalhada das alterações propostas.
 
-# Troubleshooting
+Agradecemos antecipadamente por suas contribuições e estamos ansiosos para ver suas ideias!
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+# Agradecimentos e Conclusão:
 
-# Learn More
+Gostaria de expressar meus sinceros agradecimentos a todos os envolvidos neste projeto:
 
-To learn more about React Native, take a look at the following resources:
+- **Colegas de Equipe:** Agradeço a todos os colegas envolvidos por sua dedicação e colaboração no desenvolvimento deste projeto. Seu trabalho em equipe foi fundamental para o sucesso deste empreendimento.
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- **Professor Claudio Faria:** Agradecemos ao Professor Claudio Faria pelo apoio, orientação e valiosos insights fornecidos ao longo deste projeto. Sua orientação foi fundamental para nosso aprendizado e crescimento.
+
+- **Pontifícia Universidade Católica de Minas Gerais:** Expressamos nossa gratidão à instituição PUC-Minas por proporcionar o ambiente propício ao aprendizado, incentivando a inovação e o desenvolvimento de projetos como este.
+
+Com isso, concluímos este projeto com grande satisfação e aprendizado, esperando que ele possa contribuir positivamente para a comunidade e para nossas trajetórias profissionais futuras.
+
+Agradecemos a todos pelo apoio e oportunidade de realizar este trabalho.
