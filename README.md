@@ -64,7 +64,7 @@ Este projeto utiliza o serviço de broker MQTT do ThingSpeak para a comunicaçã
 
 Para mais detalhes e instruções específicas sobre a configuração do broker MQTT do ThingSpeak, consulte a [documentação oficial do ThingSpeak](https://www.mathworks.com/help/thingspeak/).
 
-# Instruções para Configurar e Executar um Projeto React Native (CLI)
+# Como Configurar e Executar um Projeto React Native (CLI)
 
 ## Pré-requisitos:
 
@@ -78,6 +78,7 @@ Antes de começar, certifique-se de ter o seguinte instalado em seu sistema:
    ```bash
    yarn global add react-native-cli
    ```
+- Prepare seu ambiente conforme seu sistema operacional seguindo a [documentação oficial](https://reactnative.dev/docs/environment-setup).
 ## Clone do repositório
 
    ```bash
