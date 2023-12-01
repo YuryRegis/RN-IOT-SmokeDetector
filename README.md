@@ -1,5 +1,5 @@
-<div style="text-align: center;">
-  <img src="https://cdn3.vectorstock.com/i/1000x1000/71/77/no-smoking-sign-with-cigarette-vector-22767177.jpg" alt="Logo do Projeto" style="width: 200px; height: 200px; border-radius: 50px">
+<div align="center">
+  <img src="https://cdn3.vectorstock.com/i/1000x1000/71/77/no-smoking-sign-with-cigarette-vector-22767177.jpg" alt="Logo do Projeto" width="200px" height="200px">
 </div>
 
 # Detector de Fumaça IoT
@@ -17,18 +17,24 @@ Este projeto foi desenvolvido por estudantes da Pontifícia Universidade Católi
 
 # Download - Detector de Fumaça IoT
 
-- [Android](https://github.com/YuryRegis/RN-IOT-SmokeDetector/blob/master/android/app/release/app-release.apk)
+- Android - [_APK LINK DOWNLOAD_](https://github.com/YuryRegis/RN-IOT-SmokeDetector/releases/download/v0.0.13/app-release.apk)
 - iOS (ainda não disponível)
 
 # Telas do Aplicativo
-
-<table>
-  <tr>
-    <td><img src="link_da_imagem_configuracao" alt="Configuração" style="width: 200px; height: 400px;"></td>
-    <td><img src="link_da_imagem_monitoramento" alt="Monitoramento" style="width: 200px; height: 400px;"></td>
-    <td><img src="link_da_imagem_sobre" alt="Sobre Nós" style="width: 200px; height: 400px;"></td>
-  </tr>
-</table>
+<div align="center">
+  <table>
+    <tr>
+      <td>Configuração</td>
+      <td>Monitoramento</td>
+      <td>Sobre nós</td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/YuryRegis/RN-IOT-SmokeDetector/assets/29512626/85657b2d-0e8a-4ed0-bdab-d98fd3ca2c52" alt="Configuração" style="width: 200px; height: 400px;"></td>
+      <td><img src="https://github.com/YuryRegis/RN-IOT-SmokeDetector/assets/29512626/b6ebd845-ec91-48cf-895a-0e11c551c494" alt="Monitoramento" style="width: 200px; height: 400px;"></td>
+      <td><img src="https://github.com/YuryRegis/RN-IOT-SmokeDetector/assets/29512626/377c2c12-2e14-4c4b-89a9-297512551bf5" alt="Sobre Nós" style="width: 200px; height: 400px;"></td>
+    </tr>
+  </table>
+</div>
 
 - **Configuração:** Esta tela é responsável por receber dados de conexão com um broker MQTT.
 - **Monitoramento:** Aqui são exibidos os dados do sensor de fumaça em tempo real.
