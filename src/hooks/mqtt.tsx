@@ -161,9 +161,9 @@ export function useMqtt() {
     try {
       const storagedDatSerialized = localStorage.getString('@mqttData');
       if (storagedDatSerialized) {
-        const storagedData = JSON.parse(storagedDatSerialized);
+        const storagedData = JSON.parse(storagedDatSerialized) as typeof data;
         if (data.length === 0) {
-          setData(storagedData);
+          setData(storagedData.slice(-5));
         }
       }
     } catch (error) {
