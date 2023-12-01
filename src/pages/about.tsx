@@ -52,9 +52,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9e9e9',
   },
   header: {
-    // width: '100%',
-    borderBottomColor: '#B589D6',
-    borderBottomWidth: 3,
+    backgroundColor: '#6A369C',
+    borderBottomColor: '#be8aee',
+    borderBottomWidth: 9,
     height: 90,
 
     alignItems: 'center',
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   Title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#6A369C',
+    color: 'white',
   },
   ImageContainer: {
     margin: 20,
@@ -77,7 +77,9 @@ const styles = StyleSheet.create({
   Image: {
     width: 190,
     height: 190,
+    borderWidth: 3,
     borderRadius: 45,
+    borderColor: '#d2aef3',
   },
   TextContainer: {
     paddingHorizontal: 16,

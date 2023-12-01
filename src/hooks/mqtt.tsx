@@ -1,20 +1,23 @@
-import React, {useState} from 'react';
+import mqtt from 'sp-react-native-mqtt';
 import Toast from 'react-native-toast-message';
-import mqtt, {IMqttClient} from 'sp-react-native-mqtt';
 
+import {localStorage} from '../services';
 import {useConfigMQTTStore, useGlobalState} from '../context';
 
 const MQTT_HOST = 'mqtt://mqtt3.thingspeak.com:1883';
 
-type mqttDataResponse = {
-  value: number;
-  createdAt: string;
-};
-
 export function useMqtt() {
-  const {setIsConnected, setIsLoading, setIsAlarmOn} = useGlobalState();
+  const {
+    data,
+    mqttRef,
+    setData,
+    setMqttRef,
+    setIsLoading,
+    setIsAlarmOn,
+    setIsConnected,
+  } = useGlobalState();
+
   const {topicID, clientID, password, username} = useConfigMQTTStore();
-  const [data, setData] = useState<mqttDataResponse[]>([]);
 
   const MQTT_TOPIC = `channels/${topicID}/subscribe`;
 
@@ -23,18 +26,16 @@ export function useMqtt() {
     port: 1883,
     clean: true,
     uri: MQTT_HOST,
-    automaticReconnect: true,
+    automaticReconnect: false,
     user: username,
     pass: password,
     clientId: clientID,
   };
 
-  const mqttClientRef = React.useRef<IMqttClient | null>(null);
-
   async function disconnect() {
-    if (mqttClientRef.current) {
+    if (mqttRef.current) {
       setIsLoading(true);
-      await mqttClientRef.current.disconnect();
+      await mqttRef.current.disconnect();
       Toast.show({
         type: 'error',
         text1: 'MQTT Disconnected',
@@ -60,8 +61,12 @@ export function useMqtt() {
         position: 'bottom',
         visibilityTime: 5000,
       });
-      setIsConnected(true);
-      setIsLoading(false);
+      loadStorageData()
+        .then()
+        .finally(() => {
+          setIsConnected(true);
+          setIsLoading(false);
+        });
     });
 
     mqttClient.on('message', payload => {
@@ -70,13 +75,20 @@ export function useMqtt() {
       const response = JSON.parse(payload.data);
 
       if (response.field1 !== null) {
-        setData(oldState => [
-          ...oldState,
+        const newData = [
           {
             value: parseInt(response.field1, 10),
             createdAt: response.created_at,
           },
-        ]);
+        ];
+        try {
+          setData(newData);
+        } catch (error) {
+          console.log('error', error);
+        } finally {
+          console.log('saving data', newData);
+          saveStorageData(newData);
+        }
       }
       if (response.field2 !== null) {
         const alarmStatusOn = response.field2 === 'true';
@@ -108,16 +120,66 @@ export function useMqtt() {
       console.log(err);
       setIsLoading(false);
       setIsConnected(false);
-      throw new Error(err);
+      Toast.show({
+        type: 'error',
+        text1: 'Unexpected error',
+        text2: err.toString(),
+        position: 'bottom',
+        visibilityTime: 3000,
+      });
     });
 
     mqttClient.connect();
-    mqttClientRef.current = mqttClient;
+    setMqttRef(mqttClient);
+  }
+
+  function saveStorageData(newData: {value: number; createdAt: string}[]) {
+    try {
+      console.log('saving data on function', newData);
+      const storagedDatSerialized = localStorage.getString('@mqttData');
+      if (storagedDatSerialized) {
+        const storagedData = JSON.parse(storagedDatSerialized);
+        localStorage.set(
+          '@mqttData',
+          JSON.stringify([...storagedData, ...newData]),
+        );
+      } else {
+        localStorage.set('@mqttData', JSON.stringify(newData));
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Storage data not saved',
+        text2: 'Please, check mmkv storage',
+        position: 'bottom',
+        visibilityTime: 5000,
+      });
+    }
+  }
+
+  async function loadStorageData() {
+    try {
+      const storagedDatSerialized = localStorage.getString('@mqttData');
+      if (storagedDatSerialized) {
+        const storagedData = JSON.parse(storagedDatSerialized);
+        if (data.length === 0) {
+          setData(storagedData);
+        }
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Storage data not found',
+        text2: 'Please, check mmkv storage',
+        position: 'bottom',
+        visibilityTime: 5000,
+      });
+    }
   }
 
   function publishAlarmStatus(status: boolean) {
     const publishTopic = `channels/${topicID}/publish/fields/field2`;
-    mqttClientRef.current?.publish(publishTopic, status.toString(), 0, false);
+    mqttRef.current?.publish(publishTopic, status.toString(), 0, false);
   }
 
   return {
@@ -125,6 +187,6 @@ export function useMqtt() {
     connect,
     disconnect,
     publishAlarmStatus,
-    mqttClient: mqttClientRef.current,
+    mqttClient: mqttRef?.current,
   };
 }

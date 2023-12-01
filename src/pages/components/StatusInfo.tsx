@@ -8,7 +8,6 @@ export function StatusInfo() {
   const {isConnected, isLoading} = useGlobalState();
 
   useEffect(() => {
-    console.log('StatusInfo: ', isConnected, isLoading);
     if (isLoading) {
       setStatusText('Conectando...');
       setStatusColor('orange');

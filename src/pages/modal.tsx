@@ -1,13 +1,13 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {
-  Modal,
   Text,
-  TextInput,
   View,
+  Modal,
+  TextInput,
   ModalProps,
-  TouchableOpacity,
   StyleSheet,
+  TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 
 import {useConfigMQTTStore, useGlobalState} from '../context';
@@ -15,6 +15,8 @@ import {Button} from '../components';
 import {useMqtt} from '../hooks';
 import Toast from 'react-native-toast-message';
 
+const {width} = Dimensions.get('window');
+const $modalContentWidth = width - 48;
 interface IConfigModalProps extends ModalProps {
   callback: () => void;
 }
@@ -49,6 +51,8 @@ export const ConfigModal = ({callback, visible}: IConfigModalProps) => {
         position: 'bottom',
         visibilityTime: 3000,
       });
+    } finally {
+      callback();
     }
   };
 
@@ -59,25 +63,38 @@ export const ConfigModal = ({callback, visible}: IConfigModalProps) => {
   return (
     <Modal transparent={true} animationType="slide" visible={visible}>
       <View style={$style.modal}>
-        <View style={{backgroundColor: 'white', padding: 20, borderRadius: 10}}>
+        <View style={$style.modalContent}>
           <TouchableOpacity onPress={handleCloseModal}>
-            <Text style={{fontSize: 20, textAlign: 'right'}}>X</Text>
+            <Text style={$style.IconText}>x</Text>
           </TouchableOpacity>
 
-          <Text>Username</Text>
-          <TextInput value={username} onChangeText={setUsername} />
+          <Text style={$style.Text}>Username</Text>
+          <TextInput
+            value={username}
+            style={$style.TextInput}
+            onChangeText={setUsername}
+          />
 
-          <Text>Client ID</Text>
-          <TextInput value={clientId} onChangeText={setClientId} />
+          <Text style={$style.Text}>Client ID</Text>
+          <TextInput
+            value={clientId}
+            style={$style.TextInput}
+            onChangeText={setClientId}
+          />
 
-          <Text>Topic ID</Text>
-          <TextInput value={topicId} onChangeText={setTopicId} />
+          <Text style={$style.Text}>Topic ID</Text>
+          <TextInput
+            value={topicId}
+            style={$style.TextInput}
+            onChangeText={setTopicId}
+          />
 
-          <Text>Password</Text>
+          <Text style={$style.Text}>Password</Text>
           <TextInput
             value={password}
-            onChangeText={setPassword}
             secureTextEntry={true}
+            style={$style.TextInput}
+            onChangeText={setPassword}
           />
 
           <Button
@@ -94,7 +111,30 @@ export const ConfigModal = ({callback, visible}: IConfigModalProps) => {
 const $style = StyleSheet.create({
   modal: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalContent: {
+    width: $modalContentWidth,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+  },
+  TextInput: {
+    color: 'gray',
+    borderWidth: 1,
+    paddingLeft: 9,
+    borderRadius: 9,
+    marginBottom: 15,
+    borderColor: '#B589D6',
+  },
+  IconText: {
+    fontSize: 18,
+    color: '#6A369C',
+    textAlign: 'right',
+  },
+  Text: {
+    fontSize: 14,
+    color: '#6A369C',
   },
 });

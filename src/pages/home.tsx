@@ -87,6 +87,8 @@ const style = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 8,
     justifyContent: 'space-between',
   },
   statusBarContent: {
